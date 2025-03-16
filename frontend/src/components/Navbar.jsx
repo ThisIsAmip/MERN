@@ -1,12 +1,13 @@
 import { Flex, Layout, Button, Menu } from 'antd';
 import { ShoppingCartOutlined, SunOutlined, PlusSquareOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 
 
 const Navbar = () => {
-  const [current, setCurrent] = useState("home");
+  const location = useLocation();
+  const [current, setCurrent] = useState(location.pathname === '/' ? 'home' : location.pathname.substring(1));
   const onClick = (e) => {
     setCurrent(e.key);
   }
@@ -16,7 +17,7 @@ const Navbar = () => {
       label: <Link to="/">Home</Link>,
     },
     {
-      key: "about",
+      key: "create",
       label: <Link to="/create">Create</Link>
     },
   ];
