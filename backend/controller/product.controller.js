@@ -16,7 +16,7 @@ export const createProduct = async (req, res) => {
     const product = req.body; //user will send this data
 
     //if any of the data is missing
-    if (!product.name || !product.price || !product.description || !product.countInStock || !product.imageUrl) { 
+    if (!product.name || !product.price || !product.description || product.countInStock  === undefined || !product.imageUrl) { 
         return res.status(400).json({success: false, message: 'Please fill all the fields'});
     }
 
