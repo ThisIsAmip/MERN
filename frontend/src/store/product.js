@@ -28,4 +28,13 @@ export const useProductStore = create((set) => ({
         }
 
     },
+    fetchProducts: async () => {
+        try {
+            const res = await api.get('/products');
+            const data = res.data;
+            set({ products: data.data });
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }));

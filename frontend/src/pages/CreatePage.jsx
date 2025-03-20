@@ -1,19 +1,16 @@
-import { Flex, Form, Input, Button, InputNumber, message } from 'antd';
-import { useState } from 'react'
+import { Flex, Form, Input, Button, InputNumber, message, Table} from 'antd';
+import { use, useState, useEffect } from 'react'
 import { useProductStore } from '../store/product';
-import { set } from 'mongoose';
+import { model, set } from 'mongoose';
 import axios from 'axios';
+import ProductModel from '../../../backend/models/product.model';
+import ProductViewModel from '../models/ProductViewModels';
 
 const CreatePage = () => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
-  const [newProduct, setNewProduct] = useState({
-    name: '',
-    price: 0,
-    description: '',
-    countInStock: 0,
-    imageUrl: '',
-  });
+
+  const [product, setProduct] = useState([]);
 
   const successToast = () => {
     messageApi.open({
@@ -28,46 +25,51 @@ const CreatePage = () => {
       content: 'Product creation failed',
     });
   };
-
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await axios.get('http://localhost:5000/api/products');
+      setProduct(res.data.data);
+      console.log("Request URL:", product); // Check where it's actually going
+    }
+    fetchProducts();
+  }, []);
 
   const { createProduct } = useProductStore()
   const onFinish = async (values) => {
-    setNewProduct(newProduct);
     const { success, message } = await createProduct(values);
     if (success == "success") {
       successToast();
     } else {
       errorToast();
     }
-    console.log("newProduct: ", values);
     console.log("success: ", success, "message: ", message);
   };
   const testing = async () => {
     const res = await axios.get('http://localhost:5000/api/products');
-    console.log("Request URL:", res); // Check where it's actually going
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      ...res.data.data,
+    }));
+    console.log("Request URL:", product); // Check where it's actually going
   }
   return (
     <>
       {contextHolder}
       <Flex
         gap="middle"
-        justify='center'
         align='center'
-        style={{ height: '100vh' }}
+        vertical
+        style={{ height: '100vh', marginTop: '5em'  }}
 
       >
         <div
 
-          style={{
-            backgroundColor: '#efefef',
-            width: '100%',
-            maxWidth: '600px',
-            padding: '2em',
-            border: '1px solid #ddd',
-            borderRadius: '10px'
-          }}>
-          <p style={{ fontSize: '2.5em', color: 'black' }}>Create new Product</p>
-          <Form
+         >
+          <p style={{ fontSize: '2.5em', color: 'black', textAlign: 'center', }}>Create new Product</p>
+         
+        </div>
+        <Form
+        
             labelCol={{
               span: 8,
             }}
@@ -75,7 +77,12 @@ const CreatePage = () => {
               span: 16,
             }}
             style={{
-              maxWidth: 600,
+              backgroundColor: '#efefef',
+              width: '100%',
+              maxWidth: '600px',
+              padding: '2em',
+              border: '1px solid #ddd',
+              borderRadius: '10px',
             }}
             initialValues={{
               remember: true,
@@ -128,11 +135,12 @@ const CreatePage = () => {
               </Button>
             </Form.Item>
           </Form>
-        </div>
         <Button type="primary" onClick={testing}>
-          test this bitch
+          test this now
         </Button>
       </Flex>
+
+
     </>
 
   );
