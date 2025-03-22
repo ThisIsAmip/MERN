@@ -36,5 +36,18 @@ export const useProductStore = create((set) => ({
         } catch (error) {
             console.error(error);
         }
+    },
+    deleteProduct: async (id) => {
+        try {
+            const res = await api.delete('/products/' + id);
+            const data = res.data;
+            if (!data.success) {
+                return { success: "failed", message: data.message };
+            }
+            set((state) => ({ products: state.products.filter(product => product._id !== id) }));
+            return { success: "success", message: "Product deleted successfully" };
+        } catch (error) {
+            console.error(error);
+        }
     }
 }));

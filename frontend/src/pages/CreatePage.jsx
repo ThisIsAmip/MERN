@@ -34,11 +34,14 @@ const CreatePage = () => {
     fetchProducts();
   }, []);
 
-  const { createProduct } = useProductStore()
+  const { products, createProduct } = useProductStore()
   const onFinish = async (values) => {
     const { success, message } = await createProduct(values);
     if (success == "success") {
       successToast();
+      setProduct(products);
+      console.log("Haiya 1: ", product);
+      console.log("Haiya 2: ", products);
     } else {
       errorToast();
     }

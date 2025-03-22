@@ -1,5 +1,6 @@
-import { Button, Flex, Image, Card, Typography } from 'antd'
+import { Button, Flex, Image, Card, Typography, message } from 'antd'
 import React from 'react'
+import { useProductStore } from '../store/product';
 const { Text, Title, Paragraph } = Typography;
 
 export const ProductCard = ({ product }) => {
@@ -12,10 +13,29 @@ export const ProductCard = ({ product }) => {
     };
 
     //Functions, variables, etc.
+    const [messageApi, contextHolder] = message.useMessage();
+    const successToast = () => {
+        messageApi.open({
+            type: 'success',
+            content: 'Product created successfully',
+        });
+    };
 
+    const errorToast = () => {
+        messageApi.open({
+            type: 'error',
+            content: 'Product creation failed',
+        });
+    };
+
+    const { deleteProduct } = useProductStore();
+    const handleDeleteProduct = async (id) => {
+        const { success, message } = await deleteProduct(id);
+    }
 
     return (
         <>
+            {contextHolder}
             <Card
                 style={cardStyle}
                 styles={{
@@ -47,7 +67,7 @@ export const ProductCard = ({ product }) => {
                             <Text strong >In-stock: {product.countInStock}</Text>
                             <Flex gap='small'>
                                 <Button color="primary" variant="outlined">View & Edit</Button>
-                                <Button color="danger" variant="solid">Delete</Button>
+                                <Button color="danger" variant="solid" onClick={() => handleDeleteProduct(product._id)}>Delete</Button>
                             </Flex>
                         </Flex>
                     </Flex>
