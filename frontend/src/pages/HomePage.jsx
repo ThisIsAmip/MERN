@@ -1,15 +1,12 @@
-import { Col, Row, Flex, Button, Image, Card, Typography } from 'antd';
-import React, { useState, useEffect } from 'react'
+import { Col, Row, Flex, Button, Image, Card, Typography, message } from 'antd';
+import React, { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom';
 import { useProductStore } from '../store/product';
 import { ProductCard } from '../components/ProductCard';
 const { Text, Title, Paragraph } = Typography;
 
 const HomePage = () => {
-  const [childData, setChildData] = useState(null);
-  const handleChildData = (data) => {
-    setChildData(data);
-  }
+
   //Styles
 
   const cardStyle = {
@@ -20,23 +17,32 @@ const HomePage = () => {
   //Functions, variables, etc.
 
   const { fetchProducts, products } = useProductStore();
+  const [messageApi, contextHolder] = message.useMessage();
+  const showToast = (type, content) => {
+    messageApi.open({
+        type,
+        content,
+        duration: 2,
+    });
+}
+  const fetchData = useCallback(async () => {
+    console.log('Fetching products...');
+    await fetchProducts();
+    console.log('Products fetched:', products);
+  }, [fetchProducts]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      console.log('Fetching products...');
-      await fetchProducts();
-      console.log('Products after fetch:', products);
-    };
     fetchData();
   }, [fetchProducts]);
-  console.log(products);
 
 
   return (
     <>
+    {contextHolder}
       <Flex
         gap="middle"
         align='center'
-        style={{ height: '100vh', marginTop: '5em' }}
+        style={{ height: '100%', marginTop: '5em' }}
         vertical
       >
         <div
@@ -66,26 +72,19 @@ const HomePage = () => {
         >
           {products.map((product) => (
             <Col
+              key={product._id}
               lg={6} md={8} sm={12} xs={24}
+              style={{ maxHeight: '500px', overflow: 'hidden' }}
             >
-              <ProductCard key={product._id} product={product} />
+              <ProductCard product={product} showToast={showToast}/>
             </Col>
           ))}
-
-
         </Row>
       </Flex>
-      <ChildComponent childDataFunction={handleChildData} />
-      <p>Child Data: {childData}</p>
+
     </>
   );
 
 }
-const ChildComponent = (props) => {
-  return (
-    <>
-      <input type="text" onChange={(e) => props.childDataFunction(e.target.value)} />
-    </>
-  )
-}
+
 export default HomePage

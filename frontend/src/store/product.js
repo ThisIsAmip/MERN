@@ -24,6 +24,7 @@ export const useProductStore = create((set) => ({
             set((state) => ({ products: [...state.products, data.data] }));
             return { success: "success", message: "Product created successfully" };
         } catch (error) {
+            console.error("Create product error: ", error.message);
             return { success: "failed", message: error.message };
         }
 
@@ -34,7 +35,8 @@ export const useProductStore = create((set) => ({
             const data = res.data;
             set({ products: data.data });
         } catch (error) {
-            console.error(error);
+            console.error("Fetch products error: ", error.message);
+            return { success: "failed", message: error.message };
         }
     },
     deleteProduct: async (id) => {
@@ -47,7 +49,24 @@ export const useProductStore = create((set) => ({
             set((state) => ({ products: state.products.filter(product => product._id !== id) }));
             return { success: "success", message: "Product deleted successfully" };
         } catch (error) {
-            console.error(error);
+            console.error("Delete product error: ", error.message);
+            return { success: "failed", message: error.message };
         }
-    }
+    },
+    updateProduct: async (id, updatedProduct) => {
+        try {
+            const res = await api.patch('/products/' + id, updatedProduct);
+            const data = res.data;
+            if (!data.success) {
+                return { success: "failed", message: data.message };
+            }
+            set((state) => ({
+                products: state.products.map((product) => (product._id === id ? { ...product, ...updatedProduct } : product))
+            }));
+            return { success: "success", message: "Product updated successfully" };
+        } catch (error) {
+            console.error("Update product error: ", error.message);
+            return { success: "failed", message: error.message };
+        }
+    },
 }));
